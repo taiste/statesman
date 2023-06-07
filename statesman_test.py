@@ -2,8 +2,8 @@ import asyncio
 import builtins
 import contextlib
 import datetime
-import inspect
-from typing import Any, Coroutine, Dict, Iterator, List, Optional
+
+from typing import Any, Dict, Iterator, List, Optional
 
 import devtools
 import pydantic
@@ -11,7 +11,6 @@ import pytest
 import statesman
 
 builtins.debug = devtools.debug
-
 
 
 class TestBaseModel:
@@ -721,6 +720,7 @@ class TestProgrammaticStateMachine:
 
         @pytest.mark.asyncio
         async def test_can_trigger(self, state_machine: statesman.StateMachine) -> None:
+            state_machine.__config__.state_entry = statesman.Entry.allow
             await state_machine.enter_state(States.starting)
             assert state_machine.state == States.starting
             assert state_machine.can_trigger_event('finish')
@@ -935,6 +935,7 @@ class TestProgrammaticStateMachine:
 
             @pytest.mark.asyncio
             async def test_cancel_via_guard_action_bool(self, state_machine: statesman.StateMachine, mocker) -> None:
+                state_machine.__config__.guard_with = statesman.Guard.silence
                 await state_machine.enter_state(States.starting)
                 event = state_machine.get_event('finish')
                 guard_action = mocker.stub(name='action')
